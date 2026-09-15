@@ -81,7 +81,7 @@
       
       <!-- Grafik Alanı -->
       <div class="lg:col-span-2">
-        <DashboardChart />
+        <DashboardChart :labels="chartStats.labels" :sentData="chartStats.sent" :failedData="chartStats.failed" />
       </div>
 
       <!-- Sistem Durumu (Dar Alan) -->
@@ -110,12 +110,6 @@
               <span class="w-2.5 h-2.5 bg-blue-500 rounded-full"></span>
               <span class="text-xs font-semibold text-blue-600 dark:text-blue-400">Normal (Tier 1)</span>
             </div>
-          </div>
-          
-          <div class="mt-auto pt-6" v-if="store.user?.role === 'superadmin'">
-            <button @click="router.push('/admin/server-logs')" class="w-full flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm">
-              <CommandLineIcon class="w-4 h-4" /> Sistem Loglarını Gör
-            </button>
           </div>
         </div>
       </div>
@@ -175,7 +169,6 @@ import {
   UsersIcon, 
   PlusIcon,
   DocumentTextIcon,
-  CommandLineIcon,
   CheckBadgeIcon, 
   MegaphoneIcon,
   EyeIcon
@@ -188,6 +181,12 @@ let pollingInterval: any = null
 const stats = ref({
   contacts: { total: 0, active: 0 },
   campaigns: { total: 0, sent: 0, failed: 0, delivered: 0, read: 0 }
+})
+
+const chartStats = ref({
+  labels: [] as string[],
+  sent: [] as number[],
+  failed: [] as number[]
 })
 
 const recentCampaigns = ref<any[]>([])
@@ -222,6 +221,9 @@ const fetchDashboardData = async () => {
       stats.value.contacts = data.contacts
       stats.value.campaigns = data.campaigns
       recentCampaigns.value = data.recentCampaigns
+      if (data.chartData) {
+        chartStats.value = data.chartData
+      }
     }
   } catch (error) {
     console.error('Dashboard verisi alınamadı:', error)

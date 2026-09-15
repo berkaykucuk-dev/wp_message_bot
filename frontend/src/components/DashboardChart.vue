@@ -22,6 +22,7 @@ import {
   Filler,
   Legend
 } from 'chart.js'
+import { defineProps, computed } from 'vue'
 import { Line } from 'vue-chartjs'
 
 ChartJS.register(
@@ -35,8 +36,14 @@ ChartJS.register(
   Legend
 )
 
-const chartData = {
-  labels: ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
+const props = defineProps<{
+  labels: string[]
+  sentData: number[]
+  failedData: number[]
+}>()
+
+const chartData = computed(() => ({
+  labels: props.labels.length > 0 ? props.labels : ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'],
   datasets: [
     {
       label: 'Gönderilen',
@@ -48,7 +55,7 @@ const chartData = {
       pointHoverBorderColor: '#14b8a6',
       fill: true,
       tension: 0.4,
-      data: [120, 350, 200, 480, 500, 300, 650]
+      data: props.sentData.length > 0 ? props.sentData : [0, 0, 0, 0, 0, 0, 0]
     },
     {
       label: 'Hatalı',
@@ -59,10 +66,10 @@ const chartData = {
       pointBorderColor: '#fff',
       fill: true,
       tension: 0.4,
-      data: [10, 15, 5, 20, 25, 5, 30]
+      data: props.failedData.length > 0 ? props.failedData : [0, 0, 0, 0, 0, 0, 0]
     }
   ]
-}
+}))
 
 const chartOptions = {
   responsive: true,
@@ -94,3 +101,4 @@ const chartOptions = {
   }
 }
 </script>
+

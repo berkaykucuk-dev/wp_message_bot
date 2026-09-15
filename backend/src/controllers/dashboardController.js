@@ -16,11 +16,32 @@ exports.getDashboardStats = async (req, res) => {
         let totalDelivered = 0; 
         let totalRead = 0;      
 
+        const chartData = { labels: [], sent: [], failed: [] };
+        const dateMap = {};
+        
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateKey = d.toLocaleDateString('tr-TR');
+            const dayName = d.toLocaleDateString('tr-TR', { weekday: 'short' });
+            dateMap[dateKey] = { index: 6 - i, dayName };
+            chartData.labels.push(dayName);
+            chartData.sent.push(0);
+            chartData.failed.push(0);
+        }
+
         campaigns.forEach(campaign => {
             totalSent += campaign.stats.sent || 0;
             totalFailed += campaign.stats.failed || 0;
             totalDelivered += campaign.stats.delivered || 0; 
             totalRead += campaign.stats.read || 0;           
+            
+            const campDateKey = new Date(campaign.createdAt).toLocaleDateString('tr-TR');
+            if (dateMap[campDateKey]) {
+                const idx = dateMap[campDateKey].index;
+                chartData.sent[idx] += campaign.stats.sent || 0;
+                chartData.failed[idx] += campaign.stats.failed || 0;
+            }
         });
 
         const recentCampaigns = campaigns.slice(0, 5);
@@ -34,7 +55,8 @@ exports.getDashboardStats = async (req, res) => {
                 delivered: totalDelivered, 
                 read: totalRead            
             },
-            recentCampaigns
+            recentCampaigns,
+            chartData
         });
 
     } catch (error) {
