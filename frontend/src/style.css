@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-wa-light: #ece5dd;
+  --color-wa-dark: #111b21;
+  --color-wa-panelDark: #202c33;
+  --color-wa-primary: #25d366;
+  --color-wa-teal: #128c7e;
+  --color-wa-tealDark: #075e54;
+}
+
+@layer base {
+  body {
+    @apply bg-wa-light text-gray-800 dark:bg-wa-dark dark:text-gray-200 transition-colors duration-300;
+  }
+}
