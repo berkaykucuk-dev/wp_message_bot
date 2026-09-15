@@ -148,3 +148,32 @@ exports.updateContact = async (req, res) => {
         res.status(500).json({ error: 'Güncelleme işlemi başarısız.' });
     }
 };
+
+exports.bulkAddTag = async (req, res) => {
+    try {
+        const { contactIds, tag } = req.body;
+        const userId = req.user.id;
+
+        if (!contactIds || !Array.isArray(contactIds) || !tag) {
+            return res.status(400).json({ error: 'Geçersiz veri gönderildi.' });
+        }
+
+        // Seçilen kişilerin mevcut etiketlerine yeni etiketi ekler ($addToSet duplicate'leri önler)
+        await Contact.updateMany(
+            { _id: { $in: contactIds }, userId },
+            { $addToSet: { tags: tag } }
+        );
+
+        // Tag koleksiyonunu da güncelle (yoksa yarat)
+        await Tag.findOneAndUpdate(
+            { userId, name: tag },
+            { $setOnInsert: { color: '#3B82F6', count: 0 } },
+            { upsert: true }
+        );
+
+        res.json({ message: 'Etiket başarıyla eklendi.' });
+    } catch (error) {
+        console.error('Toplu etiketleme hatası:', error);
+        res.status(500).json({ error: 'Toplu etiketleme işlemi başarısız.' });
+    }
+};

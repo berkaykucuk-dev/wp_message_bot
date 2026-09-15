@@ -50,7 +50,7 @@
             v-model="searchQuery" 
             type="text" 
             placeholder="İsim veya numara ile ara..." 
-            class="pl-10 wa-input"
+            class="wa-input !pl-10"
           />
         </div>
         <!-- Tag Filter -->
@@ -68,6 +68,9 @@
       <!-- Toplu İşlemler -->
       <div v-if="selectedContacts.length > 0" class="flex items-center gap-3 animate-fade-in">
         <span class="text-sm font-semibold text-wa-primary">{{ selectedContacts.length }} kişi seçildi</span>
+        <button @click="openBulkTagModal" class="flex items-center gap-2 bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 px-3 py-1.5 rounded-sm transition-colors text-sm font-medium">
+          <TagIcon class="w-4 h-4" /> Toplu Etiketle
+        </button>
         <button @click="bulkDeleteContacts" class="flex items-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 px-3 py-1.5 rounded-sm transition-colors text-sm font-medium">
           <TrashIcon class="w-4 h-4" /> Seçilenleri Sil
         </button>
@@ -81,7 +84,7 @@
           <thead>
             <tr class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
               <th class="px-6 py-4 w-10">
-                <input type="checkbox" :checked="isAllSelected" @change="toggleAll" class="rounded border-gray-300 text-wa-teal focus:ring-wa-teal dark:bg-gray-700" />
+                <input type="checkbox" :checked="isAllSelected" @change="toggleAll" class="modern-checkbox" />
               </th>
               <th class="px-6 py-4 font-semibold">Kişi Adı</th>
               <th class="px-6 py-4 font-semibold">Telefon</th>
@@ -106,7 +109,7 @@
 
             <tr v-for="contact in paginatedContacts" :key="contact._id" class="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors group">
               <td class="px-6 py-4">
-                <input type="checkbox" :value="contact._id" v-model="selectedContacts" class="rounded border-gray-300 text-wa-teal focus:ring-wa-teal dark:bg-gray-700" />
+                <input type="checkbox" :value="contact._id" v-model="selectedContacts" class="modern-checkbox" />
               </td>
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
@@ -201,6 +204,31 @@
         </div>
       </div>
     </div>
+    
+    <!-- Bulk Tag Modal -->
+    <div v-if="isBulkTagModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-wa-panelDark rounded-md shadow-xl w-full max-w-sm overflow-hidden animate-fade-in">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+          <h3 class="text-lg font-bold text-gray-800 dark:text-white">Toplu Etiketle</h3>
+          <button @click="isBulkTagModalOpen = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <XMarkIcon class="w-5 h-5" />
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Yeni Etiket</label>
+            <input v-model="bulkTagInput" @keyup.enter="applyBulkTag" type="text" placeholder="Örn: vip, kampanya..." class="wa-input" />
+            <p class="text-xs text-gray-500 mt-2">Bu etiket seçili {{ selectedContacts.length }} kişiye eklenecek.</p>
+          </div>
+        </div>
+        <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+          <button @click="isBulkTagModalOpen = false" class="wa-btn-outline">İptal</button>
+          <button @click="applyBulkTag" :disabled="!bulkTagInput.trim()" class="wa-btn flex items-center space-x-2">
+            <span>Uygula</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
   </div>
 </template>
@@ -219,7 +247,8 @@ import {
   PencilIcon,
   UsersIcon,
   MagnifyingGlassIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  TagIcon
 } from '@heroicons/vue/24/outline'
 
 const store = useAppStore()
@@ -243,6 +272,8 @@ const pageSize = 10
 
 // Modal Durumları
 const isEditModalOpen = ref(false)
+const isBulkTagModalOpen = ref(false)
+const bulkTagInput = ref('')
 const isSaving = ref(false)
 const newTagInput = ref('')
 const editingContact = ref({
@@ -456,6 +487,39 @@ const bulkDeleteContacts = async () => {
   await fetchContacts()
 }
 
+const openBulkTagModal = () => {
+  bulkTagInput.value = ''
+  isBulkTagModalOpen.value = true
+}
+
+const applyBulkTag = async () => {
+  const tag = bulkTagInput.value.trim()
+  if (!tag) return
+  
+  try {
+    const response = await fetch(`http://localhost:3000/api/contacts/bulk-tag`, {
+      method: 'POST',
+      headers: store.getHeaders(),
+      body: JSON.stringify({
+        contactIds: selectedContacts.value,
+        tag: tag
+      })
+    })
+
+    if (!checkAuth(response)) return
+    
+    if (response.ok) {
+      isBulkTagModalOpen.value = false
+      selectedContacts.value = []
+      await fetchContacts()
+    } else {
+      alert('Toplu etiketleme başarısız oldu.')
+    }
+  } catch (error) {
+    console.error('Toplu etiketleme hatası:', error)
+  }
+}
+
 const openEditModal = (contact: any) => {
   editingContact.value = {
     _id: contact._id,
@@ -524,5 +588,16 @@ onMounted(() => {
 }
 .wa-btn-outline {
   @apply border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm bg-white dark:bg-wa-panelDark;
+}
+.modern-checkbox {
+  @apply appearance-none w-5 h-5 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded checked:bg-wa-teal checked:border-wa-teal focus:ring-2 focus:ring-wa-teal focus:ring-offset-1 transition-all cursor-pointer relative;
+}
+.modern-checkbox:checked::after {
+  content: '';
+  @apply absolute inset-0 flex items-center justify-center;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
+  background-size: 80% 80%;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 </style>
