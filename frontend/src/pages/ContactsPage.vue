@@ -1,83 +1,139 @@
 <template>
-  <div class="flex flex-col h-full relative">
+  <div class="flex flex-col h-full relative space-y-6 animate-fade-in">
     
-    <!-- Üst Bar -->
-    <div class="flex items-center justify-between mb-6">
+    <!-- Üst Bar: Başlık ve Import/Export -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Kişilerim</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Rehberindeki numaraları yönet ve yeni VCF dosyası yükle.</p>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Kişilerim</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Rehberinizi yönetin, gruplayın ve toplu mesajlar gönderin.</p>
       </div>
-      <div class="flex space-x-3">
-        <input 
-          type="file" 
-          ref="fileInput" 
-          accept=".vcf" 
-          class="hidden" 
-          @change="handleFileSelect"
-        />
-        <button @click="triggerFileInput" class="wa-btn-outline flex items-center space-x-2">
-          <DocumentPlusIcon class="w-5 h-5" />
-          <span>VCF Seç</span>
+      <div class="flex items-center gap-3">
+        <!-- VCF Input (Gizli) -->
+        <input type="file" ref="fileInput" accept=".vcf,.csv" class="hidden" @change="handleFileSelect" />
+        
+        <button @click="triggerFileInput" class="wa-btn-outline flex items-center gap-2">
+          <ArrowDownTrayIcon class="w-4 h-4" />
+          <span>İçe Aktar</span>
         </button>
-        <button @click="uploadContacts" :disabled="!selectedFile || isUploading" class="wa-btn flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed">
-          <ArrowUpTrayIcon class="w-5 h-5" />
-          <span>{{ isUploading ? 'Yükleniyor...' : 'Yükle' }}</span>
+        <button class="wa-btn-outline flex items-center gap-2" title="Yakında!">
+          <ArrowUpTrayIcon class="w-4 h-4" />
+          <span>Dışa Aktar</span>
+        </button>
+        <button v-if="selectedFile" @click="uploadContacts" :disabled="isUploading" class="wa-btn flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+          <CloudArrowUpIcon class="w-4 h-4" />
+          <span>{{ isUploading ? 'Yükleniyor...' : 'Kayıtları Kaydet' }}</span>
         </button>
       </div>
     </div>
 
-    <div v-if="selectedFile" class="mb-6 p-4 bg-wa-light dark:bg-gray-800 border border-wa-primary/30 rounded-sm flex items-center justify-between">
+    <!-- Seçili Dosya Uyarısı -->
+    <div v-if="selectedFile" class="p-4 bg-wa-light dark:bg-gray-800 border border-wa-primary/30 rounded-sm flex items-center justify-between shadow-sm">
       <div class="flex items-center space-x-3 text-gray-700 dark:text-gray-300">
         <DocumentIcon class="w-6 h-6 text-wa-primary" />
         <span class="font-medium">{{ selectedFile.name }}</span>
         <span class="text-sm text-gray-500">({{ (selectedFile.size / 1024).toFixed(2) }} KB)</span>
       </div>
-      <button @click="clearFile" class="text-red-500 hover:text-red-700 p-1">
+      <button @click="clearFile" class="text-red-500 hover:text-red-700 p-1 bg-red-50 dark:bg-red-900/30 rounded">
         <XMarkIcon class="w-5 h-5" />
       </button>
     </div>
 
-    <!-- Tablo Alanı -->
-    <div class="bg-white dark:bg-wa-panelDark border border-gray-200 dark:border-gray-800 rounded-sm overflow-hidden shadow-sm flex flex-col flex-1">
+    <!-- Arama, Filtreleme ve Toplu İşlem Barı -->
+    <div class="bg-white dark:bg-wa-panelDark border border-gray-200 dark:border-gray-800 rounded-sm p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex flex-1 items-center gap-4">
+        <!-- Search -->
+        <div class="relative w-full max-w-md">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <MagnifyingGlassIcon class="h-5 w-5 text-gray-400" />
+          </div>
+          <input 
+            v-model="searchQuery" 
+            type="text" 
+            placeholder="İsim veya numara ile ara..." 
+            class="pl-10 wa-input"
+          />
+        </div>
+        <!-- Tag Filter -->
+        <div class="relative min-w-[150px]">
+          <select v-model="selectedTagFilter" class="wa-input appearance-none">
+            <option value="">Tüm Etiketler</option>
+            <option v-for="tag in allAvailableTags" :key="tag" :value="tag">{{ tag }}</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+            <ChevronDownIcon class="h-4 w-4" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Toplu İşlemler -->
+      <div v-if="selectedContacts.length > 0" class="flex items-center gap-3 animate-fade-in">
+        <span class="text-sm font-semibold text-wa-primary">{{ selectedContacts.length }} kişi seçildi</span>
+        <button @click="bulkDeleteContacts" class="flex items-center gap-2 bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 px-3 py-1.5 rounded-sm transition-colors text-sm font-medium">
+          <TrashIcon class="w-4 h-4" /> Seçilenleri Sil
+        </button>
+      </div>
+    </div>
+
+    <!-- Tablo -->
+    <div class="bg-white dark:bg-wa-panelDark border border-gray-200 dark:border-gray-800 rounded-sm shadow-sm flex-1 flex flex-col overflow-hidden">
       <div class="overflow-x-auto flex-1">
-        <table class="w-full text-left border-collapse table-fixed">
+        <table class="w-full text-left border-collapse">
           <thead>
-            <tr class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 text-xs uppercase tracking-wider">
-              <th class="px-6 py-4 font-semibold w-1/3">Ad Soyad</th>
-              <th class="px-6 py-4 font-semibold w-1/4">Telefon</th>
-              <th class="px-6 py-4 font-semibold w-1/4">Etiketler</th>
-              <th class="px-6 py-4 font-semibold w-24">Durum</th>
-              <th class="px-6 py-4 font-semibold text-right w-28">İşlemler</th>
+            <tr class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+              <th class="px-6 py-4 w-10">
+                <input type="checkbox" :checked="isAllSelected" @change="toggleAll" class="rounded border-gray-300 text-wa-teal focus:ring-wa-teal dark:bg-gray-700" />
+              </th>
+              <th class="px-6 py-4 font-semibold">Kişi Adı</th>
+              <th class="px-6 py-4 font-semibold">Telefon</th>
+              <th class="px-6 py-4 font-semibold">Etiketler</th>
+              <th class="px-6 py-4 font-semibold text-right">İşlemler</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-200 dark:divide-gray-800 text-sm">
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
             
-            <tr v-if="paginatedContacts.length === 0" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-              <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                Kişi bulunamadı.
+            <tr v-if="filteredContacts.length === 0" class="hover:bg-transparent">
+              <td colspan="5" class="px-6 py-16 text-center">
+                <div class="flex flex-col items-center justify-center space-y-3">
+                  <div class="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-2">
+                    <UsersIcon class="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Kimse Yok Mu?</h3>
+                  <p class="text-gray-500 dark:text-gray-400 max-w-sm text-center">Şu anda eşleşen bir kayıt bulunmuyor. Rehberinize yeni kişiler ekleyerek veya filtreleri temizleyerek başlayın.</p>
+                  <button v-if="searchQuery || selectedTagFilter" @click="clearFilters" class="mt-2 text-wa-primary font-medium hover:underline">Filtreleri Temizle</button>
+                </div>
               </td>
             </tr>
 
-            <tr v-for="contact in paginatedContacts" :key="contact._id" class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-              <td class="px-6 py-4 text-gray-800 dark:text-gray-200 font-medium truncate" :title="contact.fullName">{{ contact.fullName }}</td>
-              <td class="px-6 py-4 text-gray-500 font-mono truncate" :title="contact.phoneNumber">{{ contact.phoneNumber }}</td>
-              <td class="px-6 py-4 truncate">
-                <span v-for="(tag, index) in contact.tags" :key="index" class="px-2 py-1 mr-1 text-[10px] font-semibold bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded border border-gray-200 dark:border-gray-700 uppercase tracking-wide">
-                  {{ tag }}
-                </span>
+            <tr v-for="contact in paginatedContacts" :key="contact._id" class="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors group">
+              <td class="px-6 py-4">
+                <input type="checkbox" :value="contact._id" v-model="selectedContacts" class="rounded border-gray-300 text-wa-teal focus:ring-wa-teal dark:bg-gray-700" />
               </td>
               <td class="px-6 py-4">
-                <span v-if="contact.isActive" class="px-2 py-1 text-[10px] font-semibold bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-sm border border-green-200 dark:border-green-800 uppercase tracking-wide">
-                  Aktif
-                </span>
+                <div class="flex items-center gap-3">
+                  <div :class="`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs text-white ${getAvatarColor(contact.fullName)}`">
+                    {{ getInitials(contact.fullName) }}
+                  </div>
+                  <span class="font-medium text-gray-900 dark:text-white">{{ contact.fullName || 'İsimsiz Kişi' }}</span>
+                </div>
               </td>
-              <td class="px-6 py-4 text-right space-x-3">
-                <button @click="openEditModal(contact)" class="text-gray-400 hover:text-wa-teal transition-colors outline-none" title="Düzenle">
-                  <PencilIcon class="w-5 h-5 inline" />
-                </button>
-                <button @click="deleteContact(contact._id)" class="text-gray-400 hover:text-red-500 transition-colors outline-none" title="Sil">
-                  <TrashIcon class="w-5 h-5 inline" />
-                </button>
+              <td class="px-6 py-4 text-gray-600 dark:text-gray-300 font-mono text-sm">{{ contact.phoneNumber }}</td>
+              <td class="px-6 py-4">
+                <div class="flex flex-wrap gap-1.5">
+                  <span v-for="tag in contact.tags" :key="tag" class="px-2 py-0.5 text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-100 dark:border-blue-800/50 rounded-sm">
+                    #{{ tag }}
+                  </span>
+                  <span v-if="!contact.tags || contact.tags.length === 0" class="text-gray-400 italic text-xs">Etiket Yok</span>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-right">
+                <div class="flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button @click="openEditModal(contact)" class="p-1.5 text-gray-400 hover:text-wa-primary hover:bg-blue-50 dark:hover:bg-gray-800 rounded transition-colors" title="Düzenle">
+                    <PencilIcon class="w-4 h-4" />
+                  </button>
+                  <button @click="deleteContact(contact._id)" class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors" title="Sil">
+                    <TrashIcon class="w-4 h-4" />
+                  </button>
+                </div>
               </td>
             </tr>
 
@@ -86,26 +142,24 @@
       </div>
 
       <!-- Sayfalama (Pagination) -->
-      <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-800 flex items-center justify-between bg-gray-50 dark:bg-gray-900">
+      <div v-if="totalPages > 1" class="px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-between">
         <span class="text-sm text-gray-500 dark:text-gray-400">
-          Toplam <span class="font-semibold text-gray-800 dark:text-white">{{ contacts.length }}</span> kişiden 
-          <span class="font-semibold text-gray-800 dark:text-white">{{ (currentPage - 1) * pageSize + 1 }}</span> - 
-          <span class="font-semibold text-gray-800 dark:text-white">{{ Math.min(currentPage * pageSize, contacts.length) }}</span> arası gösteriliyor
+          Toplam <span class="font-semibold text-gray-900 dark:text-white">{{ filteredContacts.length }}</span> kişiden <span class="font-semibold text-gray-900 dark:text-white">{{ ((currentPage - 1) * pageSize) + 1 }}</span> - <span class="font-semibold text-gray-900 dark:text-white">{{ Math.min(currentPage * pageSize, filteredContacts.length) }}</span> arası gösteriliyor.
         </span>
         <div class="flex space-x-2">
-          <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 border border-gray-300 dark:border-gray-700 rounded-sm bg-white dark:bg-wa-panelDark text-sm disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+          <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-wa-panelDark hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
             Önceki
           </button>
-          <button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1 border border-gray-300 dark:border-gray-700 rounded-sm bg-white dark:bg-wa-panelDark text-sm disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+          <button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1.5 border border-gray-300 dark:border-gray-700 rounded-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-wa-panelDark hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
             Sonraki
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Düzenleme Modalı -->
-    <div v-if="isEditModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div class="bg-white dark:bg-wa-panelDark rounded-sm shadow-xl w-full max-w-md overflow-hidden border border-gray-200 dark:border-gray-700">
+    <!-- Edit Modal (Mevcut yapı korunarak hafif stilize edildi) -->
+    <div v-if="isEditModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div class="bg-white dark:bg-wa-panelDark rounded-md shadow-xl w-full max-w-md overflow-hidden animate-fade-in">
         <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
           <h3 class="text-lg font-bold text-gray-800 dark:text-white">Kişiyi Düzenle</h3>
           <button @click="closeEditModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
@@ -156,12 +210,16 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '../store'
 import { 
-  ArrowUpTrayIcon, 
-  DocumentPlusIcon, 
+  ArrowUpTrayIcon,
+  ArrowDownTrayIcon,
+  CloudArrowUpIcon,
   DocumentIcon,
   XMarkIcon,
   TrashIcon,
-  PencilIcon
+  PencilIcon,
+  UsersIcon,
+  MagnifyingGlassIcon,
+  ChevronDownIcon
 } from '@heroicons/vue/24/outline'
 
 const store = useAppStore()
@@ -172,11 +230,18 @@ const selectedFile = ref<File | null>(null)
 const isUploading = ref(false)
 const contacts = ref<any[]>([])
 
-// tablo sayfalama (pagination) değişkenleri
+// Arama ve Filtreleme
+const searchQuery = ref('')
+const selectedTagFilter = ref('')
+
+// Toplu İşlemler
+const selectedContacts = ref<string[]>([])
+
+// Sayfalama
 const currentPage = ref(1)
 const pageSize = 10
 
-// popup (modal) aç kapa değişkenleri
+// Modal Durumları
 const isEditModalOpen = ref(false)
 const isSaving = ref(false)
 const newTagInput = ref('')
@@ -185,6 +250,28 @@ const editingContact = ref({
   fullName: '',
   tags: [] as string[]
 })
+
+// Avatar Helper
+const getInitials = (name: string) => {
+  if (!name) return '?'
+  const parts = name.trim().split(' ')
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  }
+  return parts[0].substring(0, 2).toUpperCase()
+}
+
+const getAvatarColor = (name: string) => {
+  if (!name) return 'bg-gray-400'
+  const colors = [
+    'bg-red-500', 'bg-orange-500', 'bg-amber-500', 
+    'bg-green-500', 'bg-emerald-500', 'bg-teal-500', 
+    'bg-cyan-500', 'bg-blue-500', 'bg-indigo-500', 
+    'bg-violet-500', 'bg-purple-500', 'bg-fuchsia-500', 'bg-pink-500'
+  ]
+  const charCodeSum = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+  return colors[charCodeSum % colors.length]
+}
 
 const checkAuth = (res: Response) => {
   if (res.status === 401) {
@@ -195,13 +282,58 @@ const checkAuth = (res: Response) => {
   return true
 }
 
-const totalPages = computed(() => Math.ceil(contacts.value.length / pageSize))
+// Tüm Benzersiz Etiketler (Filtre dropdown'u için)
+const allAvailableTags = computed(() => {
+  const tagsSet = new Set<string>()
+  contacts.value.forEach(c => {
+    if (c.tags && Array.isArray(c.tags)) {
+      c.tags.forEach((t: string) => tagsSet.add(t))
+    }
+  })
+  return Array.from(tagsSet).sort()
+})
 
+const clearFilters = () => {
+  searchQuery.value = ''
+  selectedTagFilter.value = ''
+}
+
+// Filtrelenmiş Kişiler
+const filteredContacts = computed(() => {
+  return contacts.value.filter(c => {
+    const matchesSearch = c.fullName?.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
+                          c.phoneNumber?.includes(searchQuery.value)
+    const matchesTag = selectedTagFilter.value ? c.tags?.includes(selectedTagFilter.value) : true
+    return matchesSearch && matchesTag
+  })
+})
+
+const totalPages = computed(() => Math.ceil(filteredContacts.value.length / pageSize))
+
+// Sayfalanmış Kişiler
 const paginatedContacts = computed(() => {
   const start = (currentPage.value - 1) * pageSize
   const end = start + pageSize
-  return contacts.value.slice(start, end)
+  return filteredContacts.value.slice(start, end)
 })
+
+// Toplu Seçim Checkbox Kontrolleri
+const isAllSelected = computed(() => {
+  return paginatedContacts.value.length > 0 && 
+         paginatedContacts.value.every(c => selectedContacts.value.includes(c._id))
+})
+
+const toggleAll = () => {
+  if (isAllSelected.value) {
+    // Sadece şu anki sayfadakileri seçimden çıkar
+    const pageIds = paginatedContacts.value.map(c => c._id)
+    selectedContacts.value = selectedContacts.value.filter(id => !pageIds.includes(id))
+  } else {
+    // Sadece şu anki sayfadakileri ekle
+    const newIds = paginatedContacts.value.map(c => c._id).filter(id => !selectedContacts.value.includes(id))
+    selectedContacts.value.push(...newIds)
+  }
+}
 
 const prevPage = () => {
   if (currentPage.value > 1) currentPage.value--
@@ -237,7 +369,6 @@ const fetchContacts = async () => {
     if (!checkAuth(response)) return
     if (response.ok) {
       contacts.value = await response.json()
-      // limitleri aşarsak son sayfaya geri zıplıyoruz
       if (currentPage.value > totalPages.value && totalPages.value > 0) {
         currentPage.value = totalPages.value
       }
@@ -269,7 +400,7 @@ const uploadContacts = async () => {
     if (response.ok) {
       alert(`Başarılı: ${result.summary}`)
       await fetchContacts() 
-      currentPage.value = 1 // toplu işlem olunca ilk sayfaya dönüyoruz ki kafa karışmasın
+      currentPage.value = 1
     } else {
       alert(`Hata: ${result.error}`)
     }
@@ -281,7 +412,6 @@ const uploadContacts = async () => {
   }
 }
 
-// silme aksiyonunu buradan tetikliyoruz
 const deleteContact = async (id: string) => {
   if (!confirm('Bu kişiyi silmek istediğinize emin misiniz?')) return
 
@@ -293,6 +423,8 @@ const deleteContact = async (id: string) => {
     
     if (!checkAuth(response)) return
     if (response.ok) {
+      // Seçili ise diziden çıkar
+      selectedContacts.value = selectedContacts.value.filter(sId => sId !== id)
       await fetchContacts()
     } else {
       alert('Silme işlemi başarısız oldu.')
@@ -302,12 +434,33 @@ const deleteContact = async (id: string) => {
   }
 }
 
-// kişi düzenleme modalı fonksiyonları
+// Backend toplu silme desteklemiyor olabilir, bu yüzden şimdilik for döngüsüyle sileceğiz
+const bulkDeleteContacts = async () => {
+  if (!confirm(`Seçili ${selectedContacts.value.length} kişiyi silmek istediğinize emin misiniz?`)) return
+  
+  let successCount = 0
+  for (const id of selectedContacts.value) {
+    try {
+      const response = await fetch(`http://localhost:3000/api/contacts/${id}`, {
+        method: 'DELETE',
+        headers: store.getHeaders()
+      })
+      if (response.ok) successCount++
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  
+  alert(`${successCount} kişi başarıyla silindi.`)
+  selectedContacts.value = []
+  await fetchContacts()
+}
+
 const openEditModal = (contact: any) => {
   editingContact.value = {
     _id: contact._id,
     fullName: contact.fullName,
-    tags: [...contact.tags]
+    tags: contact.tags ? [...contact.tags] : []
   }
   newTagInput.value = ''
   isEditModalOpen.value = true
