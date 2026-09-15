@@ -10,12 +10,11 @@ services:
       - mongo_data:/data/db
     restart: unless-stopped
 
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: wa_rabbitmq
+  redis:
+    image: redis:alpine
+    container_name: wa_redis
     ports:
-      - "5672:5672"   # Uygulama haberleşme portu
-      - "15672:15672" # RabbitMQ Görsel Yönetim Arayüzü portu
+      - "6379:6379"
     restart: unless-stopped
 
   backend:
@@ -29,14 +28,15 @@ services:
     environment:
       - PORT=3000
       - MONGO_URI=mongodb://mongodb:27017/whatsapp_db
-      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - ENCRYPTION_KEY=2da4bf06995b8420f523e123067095ad8cc397a54c0f1d9b7636e5556248c334 # AES-256 için tam 32 karakter olmalı
       - WA_PHONE_NUMBER_ID=1330203300175677
       - WA_ACCESS_TOKEN=EAAPs6fhfT9kBSYl6bO4w3i43FOVcPmY8DFyq5HNx5z6jCn45dS2ZAmjm9sMNVCXaycoMT83ZChuQP1cbuGVtx3ZCvcI4a6KPdQetvy7lQYR54cHHQqiCW84vNRSAnkiBuu6gCr0jhuka5qy58ZC3UTPlwDMvrCV6FcCbZAeKRbDPQzQey66kE3e9HzIyZAHo0ID5RSbOGOK1J430Q2IbEMfyuIBZBiBZCohJ6zenvTbSc66G1lnKllStjDuM9k6gachBL2z7AWANJLGhPrY95XbzVDbr
       - WA_WABA_ID=1555390759089791
     depends_on:
       - mongodb
-      - rabbitmq
+      - redis
     command: npm run dev
 
 volumes:

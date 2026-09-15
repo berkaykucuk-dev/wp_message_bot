@@ -15,7 +15,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const adminAuthRoutes = require('./routes/adminAuthRoutes');
 const publicApiRoutes = require('./routes/publicApiRoutes');
 const authMiddleware = require('./middleware/authMiddleware');
-// connectqueue rabbitmq içindi şimdilik pasifte
+const { initWorker } = require('./workers/campaignWorker');
 
 const app = express();
 
@@ -24,7 +24,8 @@ app.use(cors());
 app.use(express.json());
 
 connectDB();
-// connectqueue rabbitmq içindi şimdilik kapalı 
+// Start BullMQ Worker
+initWorker();
 
 // api'mizin ana yolları (rotalar)
 app.use('/api/auth', authRoutes);
