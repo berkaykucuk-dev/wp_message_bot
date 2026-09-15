@@ -106,7 +106,10 @@ const processJob = async (job) => {
                 status: 'sent',
                 metaMessageId: wamid
             });
-            await Campaign.findByIdAndUpdate(campaignId, { $inc: { 'stats.sent': 1 } });
+            const updated = await Campaign.findByIdAndUpdate(campaignId, { $inc: { 'stats.sent': 1 } }, { new: true });
+            if (updated.stats.sent + updated.stats.failed >= updated.stats.total) {
+                await Campaign.findByIdAndUpdate(campaignId, { status: 'Tamamlandı' });
+            }
             return { success: true, wamid };
         } else {
             // Eğer Meta API rate limit veya başka bir hata verdiyse hatayı fırlat
@@ -126,7 +129,10 @@ const processJob = async (job) => {
                 status: 'failed',
                 errorReason: error.message
             });
-            await Campaign.findByIdAndUpdate(campaignId, { $inc: { 'stats.failed': 1 } });
+            const updated = await Campaign.findByIdAndUpdate(campaignId, { $inc: { 'stats.failed': 1 } }, { new: true });
+            if (updated.stats.sent + updated.stats.failed >= updated.stats.total) {
+                await Campaign.findByIdAndUpdate(campaignId, { status: 'Tamamlandı' });
+            }
         }
         throw error;
     }
@@ -148,3 +154,4 @@ const initWorker = () => {
 };
 
 module.exports = { initWorker };
+

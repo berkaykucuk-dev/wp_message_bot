@@ -144,10 +144,10 @@
             </div>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-600 dark:text-gray-300 font-medium">RabbitMQ Kuyruğu</span>
+            <span class="text-sm text-gray-600 dark:text-gray-300 font-medium">Redis (BullMQ) Kuyruğu</span>
             <div class="flex items-center space-x-2">
-              <span class="w-2.5 h-2.5 bg-green-500 rounded-full"></span>
-              <span class="text-xs font-semibold text-green-600 dark:text-green-400">Boşta</span>
+              <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
+              <span class="text-xs font-semibold text-green-600 dark:text-green-400">Aktif</span>
             </div>
           </div>
           <div class="flex items-center justify-between">
