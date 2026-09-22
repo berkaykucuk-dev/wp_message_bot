@@ -185,14 +185,11 @@
               </span>
             </div>
             <div class="flex space-x-2">
-              <input 
-                v-model="newTagInput" 
-                @keyup.enter="addTag"
-                type="text" 
-                placeholder="Yeni etiket (Enter'a basın)" 
-                class="wa-input text-sm py-1.5 flex-1" 
-              />
-              <button @click="addTag" type="button" class="wa-btn-outline py-1.5 px-3 text-sm">Ekle</button>
+              <select v-model="newTagInput" @change="addTag" class="wa-input text-sm py-1.5 flex-1">
+                <option value="" disabled>Sistemden etiket seçin...</option>
+                <option v-for="tag in dbTags" :key="tag._id" :value="tag.name">{{ tag.name }}</option>
+              </select>
+              <button @click="addTag" type="button" :disabled="!newTagInput" class="wa-btn-outline py-1.5 px-3 text-sm">Ekle</button>
             </div>
           </div>
         </div>
@@ -216,8 +213,11 @@
         </div>
         <div class="p-6 space-y-4">
           <div>
-            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Yeni Etiket</label>
-            <input v-model="bulkTagInput" @keyup.enter="applyBulkTag" type="text" placeholder="Örn: vip, kampanya..." class="wa-input" />
+            <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Mevcut Etiketlerden Seçin</label>
+            <select v-model="bulkTagInput" class="wa-input">
+              <option value="" disabled>Etiket seçin...</option>
+              <option v-for="tag in dbTags" :key="tag._id" :value="tag.name">{{ tag.name }}</option>
+            </select>
             <p class="text-xs text-gray-500 mt-2">Bu etiket seçili {{ selectedContacts.length }} kişiye eklenecek.</p>
           </div>
         </div>
@@ -258,6 +258,7 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const selectedFile = ref<File | null>(null)
 const isUploading = ref(false)
 const contacts = ref<any[]>([])
+const dbTags = ref<any[]>([])
 
 // Arama ve Filtreleme
 const searchQuery = ref('')
@@ -406,6 +407,20 @@ const fetchContacts = async () => {
     }
   } catch (error) {
     console.error('Sunucuya bağlanılamadı', error)
+  }
+}
+
+const fetchDbTags = async () => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/tags`, {
+      headers: store.getHeaders()
+    })
+    if (!checkAuth(response)) return
+    if (response.ok) {
+      dbTags.value = await response.json()
+    }
+  } catch (error) {
+    console.error('Etiketler çekilemedi', error)
   }
 }
 
@@ -574,6 +589,7 @@ const saveContact = async () => {
 
 onMounted(() => {
   fetchContacts()
+  fetchDbTags()
 })
 </script>
 

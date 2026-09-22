@@ -35,6 +35,12 @@
             </router-link>
           </li>
           <li>
+            <router-link to="/tags" class="nav-item" active-class="active">
+              <TagIcon class="w-5 h-5" />
+              <span>Etiketlerim</span>
+            </router-link>
+          </li>
+          <li>
             <router-link to="/settings" class="nav-item" active-class="active">
               <Cog8ToothIcon class="w-5 h-5" />
               <span>Ayarlar / API</span>
@@ -82,6 +88,7 @@ import {
   PaperAirplaneIcon, 
   DocumentTextIcon, 
   Cog8ToothIcon, 
+  TagIcon,
   ArrowRightOnRectangleIcon,
   SunIcon,
   MoonIcon

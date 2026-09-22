@@ -74,6 +74,11 @@ const routes = [
         component: () => import('../pages/TemplatesPage.vue')
       },
       {
+        path: 'tags',
+        name: 'Tags',
+        component: () => import('../pages/TagsPage.vue')
+      },
+      {
         path: 'settings',
         name: 'Settings',
         component: () => import('../pages/SettingsPage.vue')
