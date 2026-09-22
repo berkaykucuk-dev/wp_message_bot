@@ -50,7 +50,7 @@
             v-model="searchQuery" 
             type="text" 
             placeholder="İsim veya numara ile ara..." 
-            class="wa-input !pl-10"
+            class="bg-gray-50 dark:bg-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 py-2 pr-4 pl-10 w-full rounded-sm focus:border-gray-800 dark:focus:border-gray-400 outline-none transition-colors"
           />
         </div>
         <!-- Tag Filter -->
@@ -84,6 +84,7 @@
           <thead>
             <tr class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
               <th class="px-6 py-4 w-10">
+                <input type="checkbox" :checked="isAllSelected" @change="toggleAll" class="rounded border-gray-300 text-wa-teal focus:ring-wa-teal dark:bg-gray-700" />
                 <input type="checkbox" :checked="isAllSelected" @change="toggleAll" class="modern-checkbox" />
               </th>
               <th class="px-6 py-4 font-semibold">Kişi Adı</th>
@@ -109,6 +110,7 @@
 
             <tr v-for="contact in paginatedContacts" :key="contact._id" class="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors group">
               <td class="px-6 py-4">
+                <input type="checkbox" :value="contact._id" v-model="selectedContacts" class="rounded border-gray-300 text-wa-teal focus:ring-wa-teal dark:bg-gray-700" />
                 <input type="checkbox" :value="contact._id" v-model="selectedContacts" class="modern-checkbox" />
               </td>
               <td class="px-6 py-4">
@@ -590,13 +592,11 @@ onMounted(() => {
   @apply border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors shadow-sm bg-white dark:bg-wa-panelDark;
 }
 .modern-checkbox {
-  @apply appearance-none w-5 h-5 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded checked:bg-wa-teal checked:border-wa-teal focus:ring-2 focus:ring-wa-teal focus:ring-offset-1 transition-all cursor-pointer relative;
+  @apply appearance-none w-5 h-5 bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded checked:bg-wa-teal checked:border-wa-teal focus:ring-2 focus:ring-wa-teal focus:ring-offset-1 transition-all cursor-pointer;
 }
-.modern-checkbox:checked::after {
-  content: '';
-  @apply absolute inset-0 flex items-center justify-center;
+.modern-checkbox:checked {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
-  background-size: 80% 80%;
+  background-size: 100% 100%;
   background-repeat: no-repeat;
   background-position: center;
 }
