@@ -84,7 +84,6 @@
           <thead>
             <tr class="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
               <th class="px-6 py-4 w-10">
-                <input type="checkbox" :checked="isAllSelected" @change="toggleAll" class="rounded border-gray-300 text-wa-teal focus:ring-wa-teal dark:bg-gray-700" />
                 <input type="checkbox" :checked="isAllSelected" @change="toggleAll" class="modern-checkbox" />
               </th>
               <th class="px-6 py-4 font-semibold">Kişi Adı</th>
@@ -110,7 +109,6 @@
 
             <tr v-for="contact in paginatedContacts" :key="contact._id" class="hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors group">
               <td class="px-6 py-4">
-                <input type="checkbox" :value="contact._id" v-model="selectedContacts" class="rounded border-gray-300 text-wa-teal focus:ring-wa-teal dark:bg-gray-700" />
                 <input type="checkbox" :value="contact._id" v-model="selectedContacts" class="modern-checkbox" />
               </td>
               <td class="px-6 py-4">
