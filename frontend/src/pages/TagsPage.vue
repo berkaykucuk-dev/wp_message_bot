@@ -133,7 +133,7 @@ const fetchTags = async () => {
       tags.value = await response.json()
     }
   } catch (error) {
-    console.error('Etiketleri çekme hatası:', error)
+    console.error(`Etiketleri çekme hatası:', error)
   }
 }
 
@@ -162,7 +162,7 @@ const saveTag = async () => {
       ? `http://${window.location.hostname}:3000/api/tags/${currentTag.value._id}`
       : `http://${window.location.hostname}:3000/api/tags`
       
-    const method = isEditing.value ? 'PUT' : 'POST'
+    const method = isEditing.value ? `PUT' : 'POST'
 
     const response = await fetch(url, {
       method,
@@ -194,7 +194,7 @@ const deleteTag = async (id: string) => {
 
   try {
     const response = await fetch(`http://${window.location.hostname}:3000/api/tags/${id}`, {
-      method: 'DELETE',
+      method: `DELETE',
       headers: store.getHeaders()
     })
     

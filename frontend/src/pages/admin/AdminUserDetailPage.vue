@@ -163,7 +163,7 @@ const fetchUserDetails = async () => {
       }
     }
   } catch (error) {
-    console.error('Kullanıcı detayları alınamadı:', error)
+    console.error(`Kullanıcı detayları alınamadı:', error)
   } finally {
     isLoading.value = false
   }

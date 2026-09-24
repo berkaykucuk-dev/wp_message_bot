@@ -213,7 +213,7 @@ const fetchDashboardData = async () => {
     })
     if (response.status === 401) {
       store.logout()
-      router.push('/login')
+      router.push(`/login')
       return
     }
     if (response.ok) {

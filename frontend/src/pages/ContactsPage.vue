@@ -406,7 +406,7 @@ const fetchContacts = async () => {
       }
     }
   } catch (error) {
-    console.error('Sunucuya bağlanılamadı', error)
+    console.error(`Sunucuya bağlanılamadı', error)
   }
 }
 
@@ -420,7 +420,7 @@ const fetchDbTags = async () => {
       dbTags.value = await response.json()
     }
   } catch (error) {
-    console.error('Etiketler çekilemedi', error)
+    console.error(`Etiketler çekilemedi', error)
   }
 }
 
@@ -432,7 +432,7 @@ const uploadContacts = async () => {
   formData.append('file', selectedFile.value)
 
   try {
-    const response = await fetch(`http://${window.location.hostname}:3000/api/contacts/upload', {
+    const response = await fetch(`http://${window.location.hostname}:3000/api/contacts/upload`, {
       method: 'POST',
       headers: {
         ...(store.token ? { 'Authorization': 'Bearer ' + store.token } : {})
@@ -463,7 +463,7 @@ const deleteContact = async (id: string) => {
 
   try {
     const response = await fetch(`http://${window.location.hostname}:3000/api/contacts/${id}`, {
-      method: 'DELETE',
+      method: `DELETE',
       headers: store.getHeaders()
     })
     
@@ -488,7 +488,7 @@ const bulkDeleteContacts = async () => {
   for (const id of selectedContacts.value) {
     try {
       const response = await fetch(`http://${window.location.hostname}:3000/api/contacts/${id}`, {
-        method: 'DELETE',
+        method: `DELETE',
         headers: store.getHeaders()
       })
       if (response.ok) successCount++
@@ -513,7 +513,7 @@ const applyBulkTag = async () => {
   
   try {
     const response = await fetch(`http://${window.location.hostname}:3000/api/contacts/bulk-tag`, {
-      method: 'POST',
+      method: `POST',
       headers: store.getHeaders(),
       body: JSON.stringify({
         contactIds: selectedContacts.value,
@@ -565,7 +565,7 @@ const saveContact = async () => {
   isSaving.value = true
   try {
     const response = await fetch(`http://${window.location.hostname}:3000/api/contacts/${editingContact.value._id}`, {
-      method: 'PUT',
+      method: `PUT',
       headers: store.getHeaders(),
       body: JSON.stringify({
         fullName: editingContact.value.fullName,

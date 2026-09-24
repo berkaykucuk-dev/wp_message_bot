@@ -53,7 +53,7 @@ let pollInterval: number | undefined
 
 const fetchLogs = async () => {
   try {
-    const res = await fetch(`http://${window.location.hostname}:3000/api/admin/server-logs', {
+    const res = await fetch(`http://${window.location.hostname}:3000/api/admin/server-logs`, {
       headers: store.getHeaders()
     })
     if (res.ok) {
