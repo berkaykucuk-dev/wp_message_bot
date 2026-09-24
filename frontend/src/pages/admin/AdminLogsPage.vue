@@ -95,7 +95,7 @@ const expandedLogId = ref<string | null>(null)
 const fetchLogs = async () => {
   isLoading.value = true
   try {
-    const res = await fetch(`http://\${window.location.hostname}:3000/api/admin/logs`, {
+    const res = await fetch(`http://${window.location.hostname}:3000/api/admin/logs`, {
       headers: store.getHeaders()
     })
     if (res.ok) {

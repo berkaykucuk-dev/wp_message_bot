@@ -290,7 +290,7 @@ const toggleCreateForm = () => {
 
 const fetchTags = async () => {
   try {
-    const response = await fetch(`http://\${window.location.hostname}:3000/api/tags`, { headers: store.getHeaders() })
+    const response = await fetch(`http://${window.location.hostname}:3000/api/tags`, { headers: store.getHeaders() })
     if (!checkAuth(response)) return
     if (response.ok) tags.value = await response.json()
   } catch (error) { console.error('Etiketler getirilemedi', error) }
@@ -298,7 +298,7 @@ const fetchTags = async () => {
 
 const fetchTemplates = async () => {
   try {
-    const response = await fetch(`http://\${window.location.hostname}:3000/api/templates`, { headers: store.getHeaders() })
+    const response = await fetch(`http://${window.location.hostname}:3000/api/templates`, { headers: store.getHeaders() })
     if (!checkAuth(response)) return
     if (response.ok) templates.value = (await response.json()).filter((t: any) => t.status === 'APPROVED')
   } catch (error) { console.error('Şablonlar getirilemedi', error) }
@@ -306,7 +306,7 @@ const fetchTemplates = async () => {
 
 const fetchCampaigns = async () => {
   try {
-    const response = await fetch(`http://\${window.location.hostname}:3000/api/campaigns`, { headers: store.getHeaders() })
+    const response = await fetch(`http://${window.location.hostname}:3000/api/campaigns`, { headers: store.getHeaders() })
     if (!checkAuth(response)) return
     if (response.ok) {
       campaigns.value = await response.json()
@@ -319,7 +319,7 @@ const fetchCampaigns = async () => {
 const submitCampaign = async () => {
   isSubmitting.value = true
   try {
-    const response = await fetch(`http://\${window.location.hostname}:3000/api/campaigns`, {
+    const response = await fetch(`http://${window.location.hostname}:3000/api/campaigns`, {
       method: 'POST',
       headers: store.getHeaders(),
       body: JSON.stringify({
