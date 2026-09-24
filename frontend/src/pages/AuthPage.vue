@@ -87,7 +87,7 @@ const handleLogin = async () => {
   loginError.value = ''
   isLoading.value = true
   try {
-    const res = await fetch('http://localhost:3000/api/auth/login', {
+    const res = await fetch(`http://${window.location.hostname}:3000/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(loginForm.value)
@@ -108,7 +108,7 @@ const handleRegister = async () => {
   registerError.value = ''
   isLoading.value = true
   try {
-    const res = await fetch('http://localhost:3000/api/auth/register', {
+    const res = await fetch(`http://${window.location.hostname}:3000/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(registerForm.value)
@@ -225,4 +225,4 @@ const handleRegister = async () => {
 .wa-btn-ghost {
   @apply rounded-sm border border-white text-white bg-transparent font-bold py-3 px-10 uppercase tracking-wider hover:bg-white hover:text-wa-teal transition-colors;
 }
-</style>
+</style>
