@@ -102,7 +102,7 @@ const isLoadingUsers = ref(false)
 const fetchStats = async () => {
   isLoadingStats.value = true
   try {
-    const res = await fetch('http://localhost:3000/api/admin/stats', {
+    const res = await fetch(`http://\${window.location.hostname}:3000/api/admin/stats`, {
       headers: store.getHeaders()
     })
     if (res.ok) {
@@ -119,7 +119,7 @@ const fetchStats = async () => {
 const fetchUsers = async () => {
   isLoadingUsers.value = true
   try {
-    const res = await fetch('http://localhost:3000/api/admin/users', {
+    const res = await fetch(`http://\${window.location.hostname}:3000/api/admin/users`, {
       headers: store.getHeaders()
     })
     if (res.ok) {
@@ -138,7 +138,7 @@ const toggleUserStatus = async (user: any) => {
   
   const newStatus = user.isActive === false ? true : false
   try {
-    const res = await fetch(`http://localhost:3000/api/admin/users/${user._id}/status`, {
+    const res = await fetch(`http://\${window.location.hostname}:3000/api/admin/users/${user._id}/status`, {
       method: 'PUT',
       headers: store.getHeaders(),
       body: JSON.stringify({ isActive: newStatus })

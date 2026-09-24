@@ -395,7 +395,7 @@ const clearFile = () => {
 
 const fetchContacts = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/contacts`, {
+    const response = await fetch(`http://\${window.location.hostname}:3000/api/contacts`, {
       headers: store.getHeaders()
     })
     if (!checkAuth(response)) return
@@ -412,7 +412,7 @@ const fetchContacts = async () => {
 
 const fetchDbTags = async () => {
   try {
-    const response = await fetch(`http://localhost:3000/api/tags`, {
+    const response = await fetch(`http://\${window.location.hostname}:3000/api/tags`, {
       headers: store.getHeaders()
     })
     if (!checkAuth(response)) return
@@ -432,7 +432,7 @@ const uploadContacts = async () => {
   formData.append('file', selectedFile.value)
 
   try {
-    const response = await fetch('http://localhost:3000/api/contacts/upload', {
+    const response = await fetch(`http://\${window.location.hostname}:3000/api/contacts/upload`, {
       method: 'POST',
       headers: {
         ...(store.token ? { 'Authorization': 'Bearer ' + store.token } : {})
@@ -462,7 +462,7 @@ const deleteContact = async (id: string) => {
   if (!confirm('Bu kişiyi silmek istediğinize emin misiniz?')) return
 
   try {
-    const response = await fetch(`http://localhost:3000/api/contacts/${id}`, {
+    const response = await fetch(`http://\${window.location.hostname}:3000/api/contacts/${id}`, {
       method: 'DELETE',
       headers: store.getHeaders()
     })
@@ -487,7 +487,7 @@ const bulkDeleteContacts = async () => {
   let successCount = 0
   for (const id of selectedContacts.value) {
     try {
-      const response = await fetch(`http://localhost:3000/api/contacts/${id}`, {
+      const response = await fetch(`http://\${window.location.hostname}:3000/api/contacts/${id}`, {
         method: 'DELETE',
         headers: store.getHeaders()
       })
@@ -512,7 +512,7 @@ const applyBulkTag = async () => {
   if (!tag) return
   
   try {
-    const response = await fetch(`http://localhost:3000/api/contacts/bulk-tag`, {
+    const response = await fetch(`http://\${window.location.hostname}:3000/api/contacts/bulk-tag`, {
       method: 'POST',
       headers: store.getHeaders(),
       body: JSON.stringify({
@@ -564,7 +564,7 @@ const removeTag = (index: number) => {
 const saveContact = async () => {
   isSaving.value = true
   try {
-    const response = await fetch(`http://localhost:3000/api/contacts/${editingContact.value._id}`, {
+    const response = await fetch(`http://\${window.location.hostname}:3000/api/contacts/${editingContact.value._id}`, {
       method: 'PUT',
       headers: store.getHeaders(),
       body: JSON.stringify({

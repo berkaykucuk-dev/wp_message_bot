@@ -72,7 +72,7 @@ const errorMsg = ref('')
 
 const fetchSettings = async () => {
   try {
-    const res = await fetch('http://localhost:3000/api/settings', {
+    const res = await fetch(`http://\${window.location.hostname}:3000/api/settings`, {
       headers: store.getHeaders()
     })
     if (res.status === 401) {
@@ -98,7 +98,7 @@ const generateApiKey = async () => {
   if (settings.value.API_KEY && !confirm('Mevcut API anahtarınız iptal edilecek ve yeni bir tane oluşturulacak. Devam etmek istiyor musunuz?')) return;
   
   try {
-    const res = await fetch('http://localhost:3000/api/settings/api-key', {
+    const res = await fetch(`http://\${window.location.hostname}:3000/api/settings/api-key`, {
       method: 'POST',
       headers: store.getHeaders()
     });
@@ -119,7 +119,7 @@ const saveSettings = async () => {
   successMsg.value = ''
   errorMsg.value = ''
   try {
-    const res = await fetch('http://localhost:3000/api/settings', {
+    const res = await fetch(`http://\${window.location.hostname}:3000/api/settings`, {
       method: 'POST',
       headers: store.getHeaders(),
       body: JSON.stringify({
