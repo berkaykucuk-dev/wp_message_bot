@@ -37,5 +37,18 @@ services:
       - redis
     command: npm run dev
 
+  frontend:
+    build: ./frontend
+    container_name: wa_frontend
+    ports:
+      - "5180:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:3000
+
 volumes:
   mongo_data:
