@@ -176,7 +176,7 @@ import { useRouter } from 'vue-router';
 import { useAppStore } from '../store';
 import { PlusIcon, XMarkIcon, TrashIcon, CheckBadgeIcon, ArrowPathIcon } from '@heroicons/vue/24/outline';
 
-const API_BASE = `http://${window.location.hostname}:3000';
+const API_BASE = 'http://localhost:3000';
 const store = useAppStore();
 const router = useRouter();
 

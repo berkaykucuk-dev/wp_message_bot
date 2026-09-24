@@ -208,12 +208,12 @@ const calculateRate = (value: number, total: number) => {
 
 const fetchDashboardData = async () => {
   try {
-    const response = await fetch(`http://${window.location.hostname}:3000/api/dashboard`, {
+    const response = await fetch(`http://localhost:3000/api/dashboard`, {
       headers: store.getHeaders()
     })
     if (response.status === 401) {
       store.logout()
-      router.push(`/login')
+      router.push('/login')
       return
     }
     if (response.ok) {

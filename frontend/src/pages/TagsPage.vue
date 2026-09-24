@@ -125,7 +125,7 @@ const formatDate = (dateString: string) => {
 
 const fetchTags = async () => {
   try {
-    const response = await fetch(`http://${window.location.hostname}:3000/api/tags`, {
+    const response = await fetch(`http://localhost:3000/api/tags`, {
       headers: store.getHeaders()
     })
     if (!checkAuth(response)) return
@@ -133,7 +133,7 @@ const fetchTags = async () => {
       tags.value = await response.json()
     }
   } catch (error) {
-    console.error(`Etiketleri çekme hatası:', error)
+    console.error('Etiketleri çekme hatası:', error)
   }
 }
 
@@ -159,10 +159,10 @@ const saveTag = async () => {
   isSaving.value = true
   try {
     const url = isEditing.value 
-      ? `http://${window.location.hostname}:3000/api/tags/${currentTag.value._id}`
-      : `http://${window.location.hostname}:3000/api/tags`
+      ? `http://localhost:3000/api/tags/${currentTag.value._id}`
+      : `http://localhost:3000/api/tags`
       
-    const method = isEditing.value ? `PUT' : 'POST'
+    const method = isEditing.value ? 'PUT' : 'POST'
 
     const response = await fetch(url, {
       method,
@@ -193,8 +193,8 @@ const deleteTag = async (id: string) => {
   if (!confirm('Bu etiketi silmek istediğinize emin misiniz? Etiket, atanmış kişilerden de temizlenecektir.')) return
 
   try {
-    const response = await fetch(`http://${window.location.hostname}:3000/api/tags/${id}`, {
-      method: `DELETE',
+    const response = await fetch(`http://localhost:3000/api/tags/${id}`, {
+      method: 'DELETE',
       headers: store.getHeaders()
     })
     

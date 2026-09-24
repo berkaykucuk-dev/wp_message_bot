@@ -151,7 +151,7 @@ const recentCampaigns = ref<any[]>([])
 const fetchUserDetails = async () => {
   isLoading.value = true
   try {
-    const res = await fetch(`http://${window.location.hostname}:3000/api/admin/users/${userId}`, {
+    const res = await fetch(`http://localhost:3000/api/admin/users/${userId}`, {
       headers: store.getHeaders()
     })
     if (res.ok) {
@@ -163,7 +163,7 @@ const fetchUserDetails = async () => {
       }
     }
   } catch (error) {
-    console.error(`Kullanıcı detayları alınamadı:', error)
+    console.error('Kullanıcı detayları alınamadı:', error)
   } finally {
     isLoading.value = false
   }
