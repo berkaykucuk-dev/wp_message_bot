@@ -142,7 +142,7 @@ const initWorker = () => {
     const worker = new Worker('whatsapp-message-queue', processJob, workerOptions);
 
     worker.on('completed', (job) => {
-        // console.log(`Job ${job.id} tamamlandı.`);
+        console.log(`Job ${job.id} tamamlandı.`);
     });
 
     worker.on('failed', (job, err) => {

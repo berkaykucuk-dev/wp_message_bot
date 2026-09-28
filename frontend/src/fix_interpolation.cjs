@@ -25,3 +25,4 @@ files.forEach(f => {
         console.log("Fixed: " + f);
     }
 });
+
