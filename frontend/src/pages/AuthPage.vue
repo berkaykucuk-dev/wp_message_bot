@@ -1,67 +1,98 @@
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center relative">
+  <div class="min-h-screen min-h-[100dvh] flex flex-col items-center justify-center relative px-4 py-8">
     
-    <!-- Tema Değiştirme Butonu -->
-    <button @click="store.toggleTheme" class="absolute top-5 right-5 p-2 rounded bg-white dark:bg-wa-panelDark shadow border border-gray-200 dark:border-gray-800 transition-colors z-100">
+    <!-- Tema Butonu -->
+    <button @click="store.toggleTheme" class="absolute top-4 right-4 p-2 bg-white dark:bg-wa-panelDark shadow border border-gray-200 dark:border-gray-800 transition-colors z-10">
       <SunIcon v-if="store.isDarkMode" class="w-5 h-5 text-gray-600 dark:text-gray-300" />
       <MoonIcon v-else class="w-5 h-5 text-gray-600 dark:text-gray-300" />
     </button>
 
-    <!-- Ana Konteyner -->
+    <!-- Masaustu: yan yana kaydirmali panel -->
     <div 
-      class="auth-container relative w-full max-w-3xl min-h-[480px] bg-white dark:bg-wa-panelDark rounded shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden transition-all duration-600"
+      class="auth-container relative w-full max-w-3xl min-h-[480px] bg-white dark:bg-wa-panelDark shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden transition-all duration-600 hidden md:block"
       :class="{ 'right-panel-active': isSignUp }"
     >
       
-      <!-- KAYIT OL (Sign Up) PANELI -->
+      <!-- KAYIT OL -->
       <div class="form-container sign-up-container absolute top-0 left-0 w-1/2 h-full transition-all duration-600 ease-in-out bg-white dark:bg-wa-panelDark">
         <form @submit.prevent="handleRegister" class="flex flex-col items-center justify-center h-full px-10 text-center">
-          <h1 class="text-2xl font-bold mb-2">Kayıt Ol</h1>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">WhatsApp SaaS Platformuna Katıl</p>
-          <input v-model="registerForm.name" type="text" placeholder="İsim Soyisim" class="wa-input" required />
+          <h1 class="text-2xl font-bold mb-2">Kayit Ol</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">WhatsApp SaaS Platformuna Katil</p>
+          <input v-model="registerForm.name" type="text" placeholder="Isim Soyisim" class="wa-input" required />
           <input v-model="registerForm.email" type="email" placeholder="E-posta" class="wa-input" required />
-          <input v-model="registerForm.password" type="password" placeholder="Şifre" class="wa-input" required />
+          <input v-model="registerForm.password" type="password" placeholder="Sifre" class="wa-input" required />
           <p v-if="registerError" class="text-red-500 text-sm mt-2">{{ registerError }}</p>
-          <button type="submit" class="wa-btn mt-6" :disabled="isLoading">{{ isLoading ? 'Bekleyin...' : 'Kayıt Ol' }}</button>
+          <button type="submit" class="wa-btn mt-6" :disabled="isLoading">{{ isLoading ? 'Bekleyin...' : 'Kayit Ol' }}</button>
         </form>
       </div>
 
-      <!-- GİRİŞ YAP (Sign In) PANELI -->
+      <!-- GIRIS YAP -->
       <div class="form-container sign-in-container absolute top-0 left-0 w-1/2 h-full transition-all duration-600 ease-in-out bg-white dark:bg-wa-panelDark">
         <form @submit.prevent="handleLogin" class="flex flex-col items-center justify-center h-full px-10 text-center">
-          <h1 class="text-2xl font-bold mb-2">Giriş Yap</h1>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Hesabına erişmek için giriş yap</p>
+          <h1 class="text-2xl font-bold mb-2">Giris Yap</h1>
+          <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Hesabina erismek icin giris yap</p>
           <input v-model="loginForm.email" type="email" placeholder="E-posta" class="wa-input" required />
-          <input v-model="loginForm.password" type="password" placeholder="Şifre" class="wa-input" required />
+          <input v-model="loginForm.password" type="password" placeholder="Sifre" class="wa-input" required />
           <p v-if="loginError" class="text-red-500 text-sm mt-2">{{ loginError }}</p>
-          <a href="#" class="text-sm text-gray-500 dark:text-gray-400 mt-3 mb-4 hover:text-wa-teal transition-colors">Şifreni mi unuttun?</a>
-          <button type="submit" class="wa-btn" :disabled="isLoading">{{ isLoading ? 'Bekleyin...' : 'Giriş Yap' }}</button>
+          <a href="#" class="text-sm text-gray-500 dark:text-gray-400 mt-3 mb-4 hover:text-wa-teal transition-colors">Sifreni mi unuttun?</a>
+          <button type="submit" class="wa-btn" :disabled="isLoading">{{ isLoading ? 'Bekleyin...' : 'Giris Yap' }}</button>
         </form>
       </div>
 
-      <!-- HAREKETLİ OVERLAY (Yeşil Geçiş Alanı) -->
+      <!-- OVERLAY -->
       <div class="overlay-container absolute top-0 left-1/2 w-1/2 h-full overflow-hidden transition-transform duration-600">
         <div class="overlay bg-gradient-to-r from-wa-teal to-wa-primary relative -left-full h-full w-[200%] transform transition-transform duration-600 text-white">
-          
-          <!-- Sol Taraf Yazıları (Zaten hesabın varsa) -->
           <div class="overlay-panel overlay-left absolute flex items-center justify-center w-1/2 h-full top-0 transition-transform duration-600 transform -translate-x-[10%]">
             <div class="flex flex-col items-center text-center max-w-[260px] mx-auto">
-              <h1 class="text-2xl font-bold mb-2">Tekrar Hoş Geldin</h1>
-              <p class="text-sm mb-8">Müşterilerinle iletişime kaldığın yerden devam etmek için giriş yap.</p>
-              <button type="button" @click="isSignUp = false" class="wa-btn-ghost">Giriş Yap</button>
+              <h1 class="text-2xl font-bold mb-2">Tekrar Hos Geldin</h1>
+              <p class="text-sm mb-8">Musterilerinle iletisime kaldigin yerden devam etmek icin giris yap.</p>
+              <button type="button" @click="isSignUp = false" class="wa-btn-ghost">Giris Yap</button>
             </div>
           </div>
-
-          <!-- Sağ Taraf Yazıları (Yeni hesap oluştur) -->
           <div class="overlay-panel overlay-right absolute flex items-center justify-center w-1/2 h-full right-0 top-0 transition-transform duration-600 transform translate-x-0">
             <div class="flex flex-col items-center text-center max-w-[260px] mx-auto">
-              <h1 class="text-2xl font-bold mb-2">Sisteme Katıl</h1>
-              <p class="text-sm mb-8">Numaralarını şifreleyerek güvende tut. Hemen bir hesap oluştur.</p>
-              <button type="button" @click="isSignUp = true" class="wa-btn-ghost">Kayıt Ol</button>
+              <h1 class="text-2xl font-bold mb-2">Sisteme Katil</h1>
+              <p class="text-sm mb-8">Numaralarini sifreleyerek guvende tut. Hemen bir hesap olustur.</p>
+              <button type="button" @click="isSignUp = true" class="wa-btn-ghost">Kayit Ol</button>
             </div>
           </div>
-          
         </div>
+      </div>
+    </div>
+
+    <!-- Mobil: basit dikey form -->
+    <div class="w-full max-w-sm md:hidden">
+      <div class="bg-white dark:bg-wa-panelDark shadow-lg border border-gray-200 dark:border-gray-800 overflow-hidden">
+        <!-- Ust renkli alan -->
+        <div class="bg-gradient-to-r from-wa-teal to-wa-primary px-6 py-8 text-center text-white">
+          <h1 class="text-2xl font-bold mb-1">SaasPanel</h1>
+          <p class="text-sm opacity-90">{{ mobileIsSignUp ? 'Yeni hesap olustur' : 'Hesabina giris yap' }}</p>
+        </div>
+
+        <!-- Giris Formu (Mobil) -->
+        <form v-if="!mobileIsSignUp" @submit.prevent="handleLogin" class="p-6 space-y-3">
+          <input v-model="loginForm.email" type="email" placeholder="E-posta" class="wa-input" required />
+          <input v-model="loginForm.password" type="password" placeholder="Sifre" class="wa-input" required />
+          <p v-if="loginError" class="text-red-500 text-sm">{{ loginError }}</p>
+          <button type="submit" class="wa-btn w-full" :disabled="isLoading">{{ isLoading ? 'Bekleyin...' : 'Giris Yap' }}</button>
+          <p class="text-center text-sm text-gray-500 dark:text-gray-400 pt-2">
+            Hesabin yok mu? 
+            <button type="button" @click="mobileIsSignUp = true" class="text-wa-teal dark:text-wa-primary font-semibold">Kayit Ol</button>
+          </p>
+        </form>
+
+        <!-- Kayit Formu (Mobil) -->
+        <form v-else @submit.prevent="handleRegister" class="p-6 space-y-3">
+          <input v-model="registerForm.name" type="text" placeholder="Isim Soyisim" class="wa-input" required />
+          <input v-model="registerForm.email" type="email" placeholder="E-posta" class="wa-input" required />
+          <input v-model="registerForm.password" type="password" placeholder="Sifre" class="wa-input" required />
+          <p v-if="registerError" class="text-red-500 text-sm">{{ registerError }}</p>
+          <button type="submit" class="wa-btn w-full" :disabled="isLoading">{{ isLoading ? 'Bekleyin...' : 'Kayit Ol' }}</button>
+          <p class="text-center text-sm text-gray-500 dark:text-gray-400 pt-2">
+            Zaten hesabin var mi? 
+            <button type="button" @click="mobileIsSignUp = false" class="text-wa-teal dark:text-wa-primary font-semibold">Giris Yap</button>
+          </p>
+        </form>
       </div>
     </div>
   </div>
@@ -76,6 +107,7 @@ import { SunIcon, MoonIcon } from '@heroicons/vue/24/outline'
 const store = useAppStore()
 const router = useRouter()
 const isSignUp = ref(false)
+const mobileIsSignUp = ref(false)
 
 const loginForm = ref({ email: '', password: '' })
 const registerForm = ref({ name: '', email: '', password: '' })
@@ -93,7 +125,7 @@ const handleLogin = async () => {
       body: JSON.stringify(loginForm.value)
     })
     const data = await res.json()
-    if (!res.ok) throw new Error(data.error || 'Giriş başarısız')
+    if (!res.ok) throw new Error(data.error || 'Giris basarisiz')
     
     store.login(data.token, data.user)
     router.push('/')
@@ -114,10 +146,10 @@ const handleRegister = async () => {
       body: JSON.stringify(registerForm.value)
     })
     const data = await res.json()
-    if (!res.ok) throw new Error(data.error || 'Kayıt başarısız')
+    if (!res.ok) throw new Error(data.error || 'Kayit basarisiz')
     
-    // hesabı oluşturunca login sayfasına atıp hemen içeri alıyoruz
     isSignUp.value = false
+    mobileIsSignUp.value = false
     loginForm.value.email = registerForm.value.email
     loginForm.value.password = registerForm.value.password
   } catch (err: any) {
@@ -215,14 +247,13 @@ const handleRegister = async () => {
   transform: translateX(10%);
 }
 
-/* özel tailwind css ayarlarımız */
 .wa-input {
-  @apply bg-gray-50 dark:bg-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 px-4 py-2 my-2 w-full rounded-sm focus:border-gray-800 dark:focus:border-gray-400 outline-none transition-colors;
+  @apply bg-gray-50 dark:bg-gray-900 dark:text-white border border-gray-300 dark:border-gray-700 px-4 py-2 my-2 w-full focus:border-gray-800 dark:focus:border-gray-400 outline-none transition-colors;
 }
 .wa-btn {
-  @apply rounded-sm bg-wa-primary text-white font-bold py-3 px-10 uppercase tracking-wider hover:bg-wa-teal transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply bg-wa-primary text-white font-bold py-3 px-10 uppercase tracking-wider hover:bg-wa-teal transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
 }
 .wa-btn-ghost {
-  @apply rounded-sm border border-white text-white bg-transparent font-bold py-3 px-10 uppercase tracking-wider hover:bg-white hover:text-wa-teal transition-colors;
+  @apply border border-white text-white bg-transparent font-bold py-3 px-10 uppercase tracking-wider hover:bg-white hover:text-wa-teal transition-colors;
 }
-</style>
+</style>
